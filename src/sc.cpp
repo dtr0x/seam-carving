@@ -32,8 +32,23 @@ bool seam_carving(Mat& in_image, int new_width, int new_height, Mat& out_image){
         
     }
 
+    //first-order Sobel derivatives
+    Mat1f dx, dy;
+
+    //convert in_image to 8-bit grayscale 
+    cvtColor(in_image, in_image, COLOR_RGB2GRAY);
+
+    //compute Sobel derivatives and normalize from 8-bit to floating point
+    Sobel(in_image, dx, CV_32F, 1, 0);
+    dx *= 1.0/255;
+    Sobel(in_image, dy, CV_32F, 0, 1);
+    dy *= 1.0/255;
+
+    //store gradient magnitude in out_image at each pixel
+    magnitude(dx, dy, out_image);
+    return true;
     
-    return seam_carving_trivial(in_image, new_width, new_height, out_image);
+    //return seam_carving_trivial(in_image, new_width, new_height, out_image);
 }
 
 
@@ -59,7 +74,7 @@ bool seam_carving_trivial(Mat& in_image, int new_width, int new_height, Mat& out
     return true;
 }
 
-// horizontl trivial seam is a seam through the center of the image
+// horizontal trivial seam is a seam through the center of the image
 bool reduce_horizontal_seam_trivial(Mat& in_image, Mat& out_image){
 
     // retrieve the dimensions of the new image
