@@ -23,12 +23,12 @@ bool seam_carving(Mat& in_image, int new_width, int new_height, Mat& out_image)
         return false;
     }
 
-/*    Mat oimage, iimage = in_image.clone();
+    Mat oimage, iimage = in_image.clone();
 
     while(iimage.rows != new_height || iimage.cols != new_width) {
         //horizontal seam if needed
         if(iimage.rows > new_height) {
-            reduce_horizontal_seam_trivial(iimage, oimage);
+            reduce_horizontal_seam(iimage, oimage);
             iimage = oimage.clone();
         }
         //vertical seam if needed
@@ -39,8 +39,7 @@ bool seam_carving(Mat& in_image, int new_width, int new_height, Mat& out_image)
     }
 
     out_image = oimage;
-    return true;*/
-    return reduce_horizontal_seam(in_image, out_image);
+    return true;
 }
 
 
@@ -259,7 +258,7 @@ bool reduce_vertical_seam(Mat& in_image, Mat& out_image)
 bool reduce_horizontal_seam(Mat& in_image, Mat& out_image) 
 {
     //create an image slighly smaller
-    out_image = Mat(/*in_image.rows-1,*/in_image.rows, in_image.cols, CV_8UC3);
+    out_image = Mat(in_image.rows-1, in_image.cols, CV_8UC3);
 
     //convert in_image to 8-bit grayscale
     Mat iimage = in_image.clone(); 
@@ -346,24 +345,12 @@ bool reduce_horizontal_seam(Mat& in_image, Mat& out_image)
     }
 
     //copy pixels into out_image, avoiding the seam
-/*    for(int i=0; i < in_image.rows; i++) {
-        for(int j=0; j < in_image.cols-1; j++) {
-            if(j < minSeamColumn[i]) {
-                out_image.at<Vec3b>(i, j) = in_image.at<Vec3b>(i, j);
-            } else {
-                out_image.at<Vec3b>(i, j) = in_image.at<Vec3b>(i, j+1);
-            }
-        }
-    }*/
-
-    for(int i=0; i < in_image.rows; i++) {
+    for(int i=0; i < in_image.rows-1; i++) {
         for(int j=0; j < in_image.cols; j++) {
-            if(i != minSeamRow[j]) {
+            if(i < minSeamRow[j]) {
                 out_image.at<Vec3b>(i, j) = in_image.at<Vec3b>(i, j);
             } else {
-                out_image.at<Vec3b>(i, j)[0] = 0;
-                out_image.at<Vec3b>(i, j)[1] = 0;
-                out_image.at<Vec3b>(i, j)[2] = 255;
+                out_image.at<Vec3b>(i, j) = in_image.at<Vec3b>(i+1, j);
             }
         }
     }
