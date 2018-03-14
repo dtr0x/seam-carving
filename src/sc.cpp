@@ -3,7 +3,7 @@
 using namespace cv;
 using namespace std;
 
-
+/* Iteratively reduce in_image to new_width and new_height by seam carving and store in out_image */
 bool seam_carving(Mat& in_image, int new_width, int new_height, Mat& out_image)
 {
     if(new_width > in_image.cols) {
@@ -42,116 +42,7 @@ bool seam_carving(Mat& in_image, int new_width, int new_height, Mat& out_image)
     return true;
 }
 
-
-// seam carves by removing trivial seams
-bool seam_carving_trivial(Mat& in_image, int new_width, int new_height, Mat& out_image){
-
-    Mat iimage = in_image.clone();
-    Mat oimage = in_image.clone();
-    while(iimage.rows!=new_height || iimage.cols!=new_width){
-        // horizontal seam if needed
-        if(iimage.rows>new_height){
-            reduce_horizontal_seam_trivial(iimage, oimage);
-            iimage = oimage.clone();
-        }
-        
-        if(iimage.cols>new_width){
-            reduce_vertical_seam_trivial(iimage, oimage);
-            iimage = oimage.clone();
-        }
-    }
-    
-    out_image = oimage.clone();
-    return true;
-}
-
-// horizontal trivial seam is a seam through the center of the image
-bool reduce_horizontal_seam_trivial(Mat& in_image, Mat& out_image){
-
-    // retrieve the dimensions of the new image
-    int rows = in_image.rows-1;
-    int cols = in_image.cols;
-    
-    // create an image slighly smaller
-    out_image = Mat(rows, cols, CV_8UC3);
-    
-    //populate the image
-    int middle = in_image.rows / 2;
-    
-    for(int i=0;i<=middle;++i)
-        for(int j=0;j<cols;++j){
-            Vec3b pixel = in_image.at<Vec3b>(i, j);
-            
-            /* at operator is r/w
-            pixel[0] = 255;
-            pixel[1] =255;
-            pixel[2]=255;
-            */
-            
-            
-            
-            out_image.at<Vec3b>(i,j) = pixel;
-        }
-    
-    for(int i=middle+1;i<rows;++i)
-        for(int j=0;j<cols;++j){
-            Vec3b pixel = in_image.at<Vec3b>(i+1, j);
-            
-            /* at operator is r/w
-             pixel[0] --> red
-             pixel[1] --> green
-             pixel[2] --> blue
-             */
-            
-            
-            out_image.at<Vec3b>(i,j) = pixel;
-        }
-
-    return true;
-}
-
-bool reduce_vertical_seam_trivial(Mat& in_image, Mat& out_image){
-    // retrieve the dimensions of the new image
-    int rows = in_image.rows;
-    int cols = in_image.cols-1;
-    
-    // create an image slighly smaller
-    out_image = Mat(rows, cols, CV_8UC3);
-    
-    //populate the image
-    int middle = in_image.cols / 2;
-    
-    for(int i=0;i<rows;++i)
-        for(int j=0;j<=middle;++j){
-            Vec3b pixel = in_image.at<Vec3b>(i, j);
-            
-            /* at operator is r/w
-             pixel[0] --> red
-             pixel[1] --> green
-             pixel[2] --> blue
-             */
-            
-            
-            out_image.at<Vec3b>(i,j) = pixel;
-        }
-    
-    for(int i=0;i<rows;++i)
-        for(int j=middle+1;j<cols;++j){
-            Vec3b pixel = in_image.at<Vec3b>(i, j+1);
-            
-            /* at operator is r/w
-             pixel[0] --> red
-             pixel[1] --> green
-             pixel[2] --> blue
-             */
-            
-            
-            out_image.at<Vec3b>(i,j) = pixel;
-        }
-    
-    return true;
-}
-
+/* Find the minimum energy vertical seam and reduce image width by one pixel */
 bool reduce_vertical_seam(Mat& in_image, Mat& out_image) 
 {
     //create an image slighly smaller
@@ -168,7 +59,7 @@ bool reduce_vertical_seam(Mat& in_image, Mat& out_image)
     Sobel(iimage, dx, CV_32F, 1, 0, 3, 1.0/255);
     Sobel(iimage, dy, CV_32F, 0, 1, 3, 1.0/255);
     
-    //store gradient magnitude in out_image at each pixel
+    //store gradient magnitude at each pixel
     magnitude(dx, dy, mag);
 
     //store cumulative minimum seam energy at each pixel, and seam direction pointing up
@@ -255,6 +146,7 @@ bool reduce_vertical_seam(Mat& in_image, Mat& out_image)
     return true;
 }
 
+/* Find the minimum energy horizontal seam and reduce image height by one pixel */
 bool reduce_horizontal_seam(Mat& in_image, Mat& out_image) 
 {
     //create an image slighly smaller
@@ -271,7 +163,7 @@ bool reduce_horizontal_seam(Mat& in_image, Mat& out_image)
     Sobel(iimage, dx, CV_32F, 1, 0, 3, 1.0/255);
     Sobel(iimage, dy, CV_32F, 0, 1, 3, 1.0/255);
     
-    //store gradient magnitude in out_image at each pixel
+    //store gradient magnitude in at each pixel
     magnitude(dx, dy, mag);
 
     //store cumulative minimum seam energy at each pixel, and seam direction pointing left
