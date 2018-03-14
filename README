@@ -1,15 +1,15 @@
 Prerequisites: cmake, opencv
 
 
-To compile
-———
+To compile:
+
 cd build/
 cmake ../
 make
 
 
-To run
-———
+To run:
+
 In the build folder:
 ./sc image1 new_width new_height image2
 
