@@ -1,0 +1,17 @@
+Prerequisites: cmake, opencv
+
+
+To compile
+———
+cd build/
+cmake ../
+make
+
+
+To run
+———
+In the build folder:
+./sc image1 new_width new_height image2
+
+
+Theory reference: Avidan, S., & Shamir, A. (2007, August). Seam carving for content-aware image resizing.
