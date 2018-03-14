@@ -44,10 +44,12 @@ int main( int argc, char** argv )
     
     // also display them both
     
-    namedWindow( "Original image", WINDOW_AUTOSIZE );
+    namedWindow( "Original Image", WINDOW_AUTOSIZE );
     namedWindow( "Seam Carved Image", WINDOW_AUTOSIZE );
-    imshow( "Original image", in_image );
+    imshow( "Original Image", in_image );
     imshow( "Seam Carved Image", out_image );
+    cout << "Input Image: " << in_image.rows << " x " << in_image.cols << endl;
+    cout << "Output Image: " << out_image.rows << " x " << out_image.cols << endl;
     waitKey(0);
     return 0;
 }

@@ -13,6 +13,7 @@ bool reduce_horizontal_seam_trivial(cv::Mat& in_image, cv::Mat& out_image);
 
 
 bool reduce_vertical_seam_trivial(cv::Mat& in_image, cv::Mat& out_image);
+bool reduce_vertical_seam(cv::Mat& in_image, cv::Mat& out_image);
 
 
 
