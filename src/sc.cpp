@@ -1,10 +1,8 @@
-
+#include <algorithm>
 #include "sc.h"
 
 using namespace cv;
 using namespace std;
-
-
 
 
 bool seam_carving(Mat& in_image, int new_width, int new_height, Mat& out_image){
@@ -33,19 +31,107 @@ bool seam_carving(Mat& in_image, int new_width, int new_height, Mat& out_image){
     }
 
     //first-order Sobel derivatives
-    Mat1f dx, dy;
+    Mat1f dx, dy, mag;
+
+    Mat iimage = in_image.clone();
+    Mat oimage = in_image.clone();
 
     //convert in_image to 8-bit grayscale 
-    cvtColor(in_image, in_image, COLOR_RGB2GRAY);
+    cvtColor(in_image, iimage, COLOR_RGB2GRAY);
 
     //compute Sobel derivatives and normalize from 8-bit to floating point
-    Sobel(in_image, dx, CV_32F, 1, 0);
+    Sobel(iimage, dx, CV_32F, 1, 0);
     dx *= 1.0/255;
-    Sobel(in_image, dy, CV_32F, 0, 1);
+    Sobel(iimage, dy, CV_32F, 0, 1);
     dy *= 1.0/255;
-
+    //normalize(dy, dy, 0, 1, NORM_MINMAX);
+    
     //store gradient magnitude in out_image at each pixel
-    magnitude(dx, dy, out_image);
+    magnitude(dx, dy, mag);
+
+    Mat1f seamEnergy = Mat(in_image.rows, in_image.cols, CV_32F);
+    int seamDirection[in_image.rows][in_image.cols];
+
+    float min, left, up, right;
+    int direction;
+    for(int i=0; i < in_image.rows; i++) {
+        for(int j=0; j < in_image.cols; j++) {
+            if(i == 0) {
+                seamEnergy.at<float>(i, j) = mag.at<float>(i, j);
+                direction = 0;
+            } else if(j == 0) {
+                up = seamEnergy.at<float>(i-1, j);
+                right = seamEnergy.at<float>(i-1, j+1);
+                if(right < up) {
+                    min = right;
+                    direction = 1;
+                } else {
+                    min = up;
+                    direction = 0;
+                }
+            } else if(j == in_image.cols - 1) {
+                left = seamEnergy.at<float>(i-1, j-1);
+                up = seamEnergy.at<float>(i-1, j);
+                if(left < up) {
+                    min = left;
+                    direction = -1;
+                } else {
+                    min = up;
+                    direction = 0;
+                }
+            } else {
+                left = seamEnergy.at<float>(i-1, j-1);
+                up = seamEnergy.at<float>(i-1, j);
+                right = seamEnergy.at<float>(i-1, j+1);
+                if(left < up) {
+                    min = left;
+                    direction = -1;
+                } else {
+                    min = up;
+                    direction = 0;
+                }
+                if(right < min) {
+                    min = right;
+                    direction = 1;
+                }
+            }
+            seamEnergy.at<float>(i, j) = mag.at<float>(i, j) + min;
+            seamDirection[i][j] = direction;
+        }
+    }
+    
+    float verticalSeamStart[in_image.cols];
+    for(int k=0; k < in_image.cols; k++) {
+        verticalSeamStart[k] = seamEnergy.at<float>(in_image.rows-1, k);
+    }
+    sort(verticalSeamStart, verticalSeamStart + in_image.cols - 1);
+
+/*    for(int i=0; i<in_image.rows; i++) {
+        for(int j=0; j<in_image.cols; j++) {
+            //printf("%.2f ", seamEnergy.at<float>(i, j));
+            if(seamDirection[i][j] == -1) {
+                cout<<seamDirection[i][j]<<" ";
+            } else {
+                cout<<" "<<seamDirection[i][j]<<" ";
+            }
+            
+        }
+        cout<<endl;
+    }*/
+
+    for(int j=0; j < oimage.cols; j++) {
+        int seamColumn = j;
+        //if(seamEnergy.at<float>(in_image.rows-1, j) < verticalSeamStart[500]) {
+            for(int i=oimage.rows-1; i > 0; --i) {
+                oimage.at<Vec3b>(i, seamColumn)[0] = 0;
+                oimage.at<Vec3b>(i, seamColumn)[1] = 0;
+                oimage.at<Vec3b>(i, seamColumn)[2] = 255;
+                seamColumn += seamDirection[i][seamColumn];
+            }
+        //}
+    }
+
+    out_image = oimage;
     return true;
     
     //return seam_carving_trivial(in_image, new_width, new_height, out_image);
