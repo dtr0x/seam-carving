@@ -7,19 +7,19 @@ using namespace std;
 bool seam_carving(Mat& in_image, int new_width, int new_height, Mat& out_image)
 {
     if(new_width > in_image.cols) {
-        cout<<"Invalid request!!! new_width has to be smaller than the current size!"<<endl;
+        cout << "Invalid request!!! new_width has to be smaller than the current size!" << endl;
         return false;
     }
     if(new_height > in_image.rows) {
-        cout<<"Invalid request!!! new_height has to be smaller than the current size!"<<endl;
+        cout << "Invalid request!!! new_height has to be smaller than the current size!" << endl;
         return false;
     }
     if(new_width <= 0) {
-        cout<<"Invalid request!!! new_width has to be positive!"<<endl;
+        cout << "Invalid request!!! new_width has to be positive!" << endl;
         return false;
     }
     if(new_height <= 0){
-        cout<<"Invalid request!!! new_height has to be positive!"<<endl;
+        cout << "Invalid request!!! new_height has to be positive!" << endl;
         return false;
     }
 
