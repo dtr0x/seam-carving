@@ -3,7 +3,8 @@ Prerequisites: cmake, opencv
 
 To compile:
 
-cd build/
+mkdir build
+cd build
 cmake ../
 make
 
