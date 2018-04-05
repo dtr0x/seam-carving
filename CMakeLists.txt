@@ -2,8 +2,6 @@
 cmake_minimum_required (VERSION 3.0)
 project (sc)
 
-set(opencv_DIR /usr/share/OpenCV)
-
 #find_package(opencv REQUIRED)
 find_package(opencv)
 
